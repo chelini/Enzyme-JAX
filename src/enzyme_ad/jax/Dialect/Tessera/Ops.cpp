@@ -308,6 +308,13 @@ unsigned DefineOp::getNumCallOperands() {
   return count;
 }
 
+Type DefineOp::getCallOperandValueType(unsigned index) {
+  if (Type pointee = getCallOperandPointeeType(index))
+    return pointee;
+  auto raw = getArgIndexForCallOperand(index);
+  return raw ? getFunctionType().getInput(*raw) : Type();
+}
+
 LogicalResult DefineOp::verify() {
   // Each entry is either UnitAttr (argument not lifted) or a dictionary
   // carrying exactly one pointee type and one direction. Storing the type once

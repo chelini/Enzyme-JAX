@@ -12,6 +12,9 @@ namespace tessera {
 // the pointee type a lifted argument is loaded as, or a unit attribute.
 constexpr llvm::StringLiteral kArgTypesAttr = "tessera.arg_types";
 
+constexpr llvm::StringLiteral kReassociateMatmulAttr =
+    "tessera.reassociate_matmul";
+
 #define GEN_PASS_DECL
 #include "src/enzyme_ad/jax/Passes/Tessera/Passes.h.inc"
 

@@ -99,6 +99,41 @@ def TesseraPropagatePropertiesPass : Pass<"tessera-propagate-properties", "Modul
   ];
 }
 
+def TesseraOptimizeMatrixChainPass : Pass<"tessera-optimize-matrix-chain", "ModuleOp"> {
+  let summary = "Choose the least-cost available parenthesization of dense matrix products";
+  let description = [{
+    A pure tessera.define marked `tessera.reassociate_matmul` promises an
+    unconditional dense matrix product and permits floating-point reassociation.
+    Its lifted signature must have two matrix inputs and one matrix result.
+    Matrices are nonempty, row-major, nested LLVM arrays of floating-point
+    elements, optionally wrapped in single-field structs. This represents the
+    complete matrix value, not a descriptor or pointer to mutable storage.
+
+    In C++, combine `pure_tessera_op`, `noinline`, and
+    `__attribute__((annotate("tessera_reassociate_matmul")))` on each kernel.
+    Dimensions and element types are inferred from its lifted argument/result
+    types. The annotation is an explicit numerical contract: regrouping products
+    may change rounding, overflow, underflow, and floating-point exceptions.
+
+    Dynamic programming minimizes the sum of m*k*n scalar multiplications using
+    only available, type-compatible marked definitions. Operand order is kept;
+    single-use products in the same block can be regrouped. Shared products are
+    leaves, so their computation is neither duplicated nor deleted. Unknown
+    operations and pointer-based descriptors are also boundaries. Functions
+    marked tessera.no_rewrite are left alone. Ties keep the original chain.
+    Costs saturate rather than wrap; chains with no representable cheaper plan
+    stay unchanged. Chains over 64 leaves are not planned.
+
+    Run after llvm-to-tessera and mem2reg, before property propagation and PDL
+    rewriting. This pass does not synthesize missing kernels, plan dynamic
+    shapes, or choose factorizations.
+  }];
+  let dependentDialects = [
+    "LLVM::LLVMDialect",
+    "enzyme::tessera::TesseraDialect"
+  ];
+}
+
 def TesseraApplyPDLPass : Pass<"tessera-apply-pdl", "ModuleOp"> {
   let summary = "Apply PDL patterns to Tessera operations";
   let description = [{

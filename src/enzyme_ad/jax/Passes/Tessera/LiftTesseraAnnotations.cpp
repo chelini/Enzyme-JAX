@@ -14,6 +14,7 @@
 //   tessera_preserves=<property>,<param>,...
 //   tessera_readonly=<param>,...
 //   tessera_no_rewrite
+//   tessera_reassociate_matmul      dense matrix multiply allowing reassociation
 //   tessera_fact                     a generated function for a fact stated on
 //                                    a statement
 //   tessera_params=<name>,...        each argument's name (added by the
@@ -679,6 +680,8 @@ struct LiftTesseraAnnotationsPass
           func->setAttr("tessera_op", StringAttr::get(ctx, text));
         } else if (text.consume_front("pure_tessera_op=")) {
           func->setAttr("pure_tessera_op", StringAttr::get(ctx, text));
+        } else if (text == "tessera_reassociate_matmul") {
+          func->setAttr(kReassociateMatmulAttr, UnitAttr::get(ctx));
         } else if (text == "tessera_no_rewrite") {
           // No rule may rewrite this function's body, so a replacement's
           // fallback can call the original op without being rewritten into

@@ -87,15 +87,6 @@ DefineOp lookupDefine(const Call &call, GuardOp guard) {
       guard, StringAttr::get(guard.getContext(), calleeName(call)));
 }
 
-// The type a tessera.call to `define` expects at operand `index`: the pointee
-// of a lifted argument, else the parameter type. Same as tessera-apply-pdl.
-Type callOperandValueType(DefineOp define, unsigned index) {
-  if (Type pointee = define.getCallOperandPointeeType(index))
-    return pointee;
-  std::optional<unsigned> raw = define.getArgIndexForCallOperand(index);
-  return raw ? define.getFunctionType().getInput(*raw) : Type();
-}
-
 // Whether a tessera.call to `define` takes type `actual` at operand `index`.
 // Same as tessera-apply-pdl.
 bool callOperandAccepts(DefineOp define, unsigned index, Type actual) {
@@ -251,7 +242,7 @@ Value emitCall(const Call &call, OpBuilder &builder, Location loc,
   SmallVector<Value> operands;
   for (auto [index, arg] : llvm::enumerate(call.args)) {
     Value value = resolveOperand(arg, builder, loc, guard,
-                                 callOperandValueType(define, index));
+                                 define.getCallOperandValueType(index));
     if (!value)
       return Value();
     if (!callOperandAccepts(define, index, value.getType())) {

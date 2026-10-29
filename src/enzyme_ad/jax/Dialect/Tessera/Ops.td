@@ -113,6 +113,9 @@ def DefineOp : TesseraOp<"define", [
     // tessera.call and must be reconstructed into memory when leaving it.
     ::mlir::Type getCallOperandPointeeType(unsigned callOperandIdx);
 
+    // The SSA value type expected by a call operand, after pointer lifting.
+    ::mlir::Type getCallOperandValueType(unsigned callOperandIdx);
+
     // Number of operands tessera.call should have for this callee: every
     // sret-excluded argument, minus the pure-output ("out") ones.
     unsigned getNumCallOperands();

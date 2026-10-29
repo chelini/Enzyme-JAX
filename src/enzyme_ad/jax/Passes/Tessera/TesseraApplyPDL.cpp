@@ -327,15 +327,6 @@ static Type literalType(const Expr &literal, Type expected, OpBuilder &b) {
   return b.getF64Type();
 }
 
-// The type a tessera.call to `define` expects at operand `index`: the pointee
-// of a lifted argument, else the parameter type.
-static Type callOperandValueType(DefineOp define, unsigned index) {
-  if (Type pointee = define.getCallOperandPointeeType(index))
-    return pointee;
-  std::optional<unsigned> raw = define.getArgIndexForCallOperand(index);
-  return raw ? define.getFunctionType().getInput(*raw) : Type();
-}
-
 // Whether a tessera.call to `define` takes type `actual` at operand `index`:
 // the parameter type, or a lifted argument's exact pointee type. (Stricter
 // than CallOp::verifySymbolUses.)
@@ -499,7 +490,7 @@ static LogicalResult checkRhsCall(const Call &call, Operation *anchor,
     return failure();
   }
   for (auto [index, arg] : llvm::enumerate(call.args)) {
-    Type expected = callOperandValueType(define, index);
+    Type expected = define.getCallOperandValueType(index);
     Type actual = checkRhsValue(arg, anchor, bound, expected, why);
     if (!actual)
       return failure();
@@ -637,7 +628,7 @@ static Value buildExprIR(const Expr &expr, OpBuilder &builder, Location loc,
             for (auto [index, arg] : llvm::enumerate(c.args))
               argValues.push_back(
                   buildExprIR(arg, builder, loc, boundVars, symbolAnchor,
-                              callOperandValueType(define, index)));
+                              define.getCallOperandValueType(index)));
 
             // Including the leading results for written arguments.
             auto call = CallOp::create(builder, loc, calleeName(c),
