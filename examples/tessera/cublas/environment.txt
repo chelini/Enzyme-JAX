@@ -1,0 +1,7 @@
+date: 2026-11-02T13:43:52Z
+gpu: NVIDIA RTX A6000, 595.99.02, 2100 MHz, 8001 MHz
+nvcc: Build cuda_12.6.r12.6/compiler.35059454_0
+cublas: /usr/local/cuda-12.6/lib64/libcublas.so.12
+cpu: AMD Ryzen 9 7950X 16-Core Processor
+reactant-clang: /tmp/tessera-linnea/Reactant/enzyme/bazel-bin/reactant-clang
+enzyme-jax: dbe856c7c227d3fa278c38f3ae872b9755383b5c (code that produced results.csv)
