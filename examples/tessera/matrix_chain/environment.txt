@@ -1,0 +1,4 @@
+5053492436d354a12f689c68c3bf430730c865f9
+Model name:                              AMD Ryzen 9 7950X 16-Core Processor
+clang version 24.0.0git
+Python 3.12.3
